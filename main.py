@@ -62,23 +62,6 @@ def criar_item_por_raridade(raridade: str) -> Item:
             item.bonus_inteligencia = int(random.randint(6, 15) * multiplicador)
             
     return item
-    # ta meio a pagado mas não me lembro o porque mas ta funcionando enta foda-se :)
-    if raridade in ["Comum", "Incomum"]:
-        if tipo == "arma": item.bonus_forca = random.randint(3, 8)
-        elif tipo == "armadura": item.bonus_resistencia = random.randint(4, 10)
-        else: item.bonus_forca = random.randint(1, 4)
-            
-    elif raridade in ["Raro", "Épico"]:
-        atributos_sorteados = random.sample(todos_atributos, 2)
-        for attr in atributos_sorteados:
-            setattr(item, attr, random.randint(3, 10))
-            
-    elif raridade in ["Lendário", "Tesouro Nacional"]:
-        atributos_sorteados = random.sample(todos_atributos, 3)
-        for attr in atributos_sorteados:
-            setattr(item, attr, random.randint(5, 15))
-            
-    return item
 
 def abrir_bau_roleta():
     limpar_tela()
