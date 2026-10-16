@@ -149,14 +149,14 @@ def sortear_raridade(tipo_bau: str) -> str:
     sorteio = random.randint(1, 100) + sorte
     
     if tipo_bau == "Aventureiro":
-        # Baú de Boss: Chances muito melhores (Sem itens Comuns!)
+        
         if sorteio <= 30: return "Incomum"
         if sorteio <= 65: return "Raro"
         if sorteio <= 85: return "Épico"
         if sorteio <= 96: return "Lendário"
         return "Tesouro Nacional"
     else:
-        # Baú Comum: Tabela padrão do jogo
+
         if sorteio <= 50: return "Comum"         
         if sorteio <= 75: return "Incomum"     
         if sorteio <= 90: return "Raro"             

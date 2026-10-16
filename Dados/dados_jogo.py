@@ -55,7 +55,7 @@ BANCO_INIMIGOS = {
         "descricao": "Inseto gigante da masmorra."
     },
     "Lobo Gigante Líder (Direwolf Boss)": {
-        "vida": 50, "forca": 12, "resistencia": 8, "tipo": "boss", # 🌟 Identificado como BOSS
+        "vida": 50, "forca": 12, "resistencia": 8, "tipo": "boss",
         "descricao": "O primeiro grande rival da Floresta de Jura!"
     }
 }
