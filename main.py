@@ -6,7 +6,7 @@ import random
 import time 
 import uuid
 
-from nome.dados_jogo import RARIDADES, RESET_COR, ARMAS, ARMADURAS, HABILIDADES_NOMES, CONSUMIVEIS, BANCO_INIMIGOS, ITENS_UNICOS #lembrar de sempre ter os impertes nos dados
+from Dados.dados_jogo import RARIDADES, RESET_COR, ARMAS, ARMADURAS, HABILIDADES_NOMES, CONSUMIVEIS, BANCO_INIMIGOS, ITENS_UNICOS #lembrar de sempre ter os importes nos dados
 
 
 
@@ -63,25 +63,27 @@ def criar_item_por_raridade(raridade: str) -> Item:
             
     return item
 
-def abrir_bau_roleta():
+def abrir_bau_roleta(tipo_bau: str):
     limpar_tela()
     print("==================================================")
-    print("        🔑 VOCÊ ESTÁ ABRINDO UM BAÚ MÍSTICO...      ")
+    print(f"        🔑 ABRINDO: BAÚ DO {tipo_bau.upper()}...      ")
     print("==================================================")
-    print("\nIniciando a roleta de itens...")
-    time.sleep(1)
+    print("\nIniciando a roleta de recompensas...")
+    time.sleep(0.5)
 
     lista_animacao = ["Comum", "Incomum", "Raro", "Épico", "Lendário", "Tesouro Nacional"]
-    raridade_final = sortear_raridade()
+    
+    #Tipo do baú para o sorteio_calcular os bônus
+    raridade_final = sortear_raridade(tipo_bau)
     item_ganho = criar_item_por_raridade(raridade_final)
     
-    atraso_tempo = 0.05
-    for i in range(22):
+    atraso_tempo = 0.04
+    for i in range(15):
         limpar_tela()
         raridade_roleta = random.choice(lista_animacao)
         item_roleta = criar_item_por_raridade(raridade_roleta)
         print("==================================================")
-        print("              🎰 ROLETA DE SAQUE 🎰               ")
+        print(f"              🎰 ROLETA [{tipo_bau.upper()}] 🎰               ")
         print("==================================================")
         print(f"\n        GIRANDO:   >>>> {item_roleta.nome_colorido} <<<<")
         print("\n==================================================")
@@ -90,9 +92,9 @@ def abrir_bau_roleta():
 
     limpar_tela()
     print("==================================================")
-    print("              🎉 PARABÉNS! PAROU! 🎉              ")
+    print("              🎉 RECOMPENSA CONQUISTADA! 🎉       ")
     print("==================================================")
-    print(f"\n✨ Você ganhou: {item_ganho.nome_colorido} !! ✨")
+    print(f"\n✨ Você obteve: {item_ganho.nome_colorido} !! ✨")
     print(f"📦 Tipo: {item_ganho.tipo.capitalize()}")
     print(f"🆔 ID Único: {item_ganho.id}")
     return item_ganho
@@ -143,14 +145,24 @@ class Item:
 def limpar_tela():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def sortear_raridade() -> str:
+def sortear_raridade(tipo_bau: str) -> str:
     sorteio = random.randint(1, 100) + sorte
-    if sorteio <= 50: return "Comum"         
-    if sorteio <= 75: return "Incomum"     
-    if sorteio <= 90: return "Raro"             
-    if sorteio <= 97: return "Épico"            
-    if sorteio <= 99: return "Lendário"       
-    return "Tesouro Nacional"                   
+    
+    if tipo_bau == "Aventureiro":
+        # Baú de Boss: Chances muito melhores (Sem itens Comuns!)
+        if sorteio <= 30: return "Incomum"
+        if sorteio <= 65: return "Raro"
+        if sorteio <= 85: return "Épico"
+        if sorteio <= 96: return "Lendário"
+        return "Tesouro Nacional"
+    else:
+        # Baú Comum: Tabela padrão do jogo
+        if sorteio <= 50: return "Comum"         
+        if sorteio <= 75: return "Incomum"     
+        if sorteio <= 90: return "Raro"             
+        if sorteio <= 97: return "Épico"            
+        if sorteio <= 99: return "Lendário"       
+        return "Tesouro Nacional"           
 
 def iniciar_combate():
     global vida_atual, mana_atual
@@ -192,7 +204,7 @@ def iniciar_combate():
                 print(f"🧛 Roubo de Vida: Recuperou {cura} de HP.")
                 
         elif opcao_luta == "2":
-            # Filtra apenas as habilidades da mochila (máximo 3)
+            # Filtra as habilidades do inventário max: 3
             skills_disponiveis = [item for item in inventario.values() if item.tipo == "habilidade"][:3]
             
             if not skills_disponiveis:
@@ -264,7 +276,18 @@ def iniciar_combate():
         print("==================================================")
         print(f"🏆 VITÓRIA! O {nome_inimigo} foi derrotado!")
         print("==================================================")
-        input("\nPressione Enter para continuar sua exploração...")
+        if dados["tipo"] == "boss":
+            print("\n👑 IMPRESSIONANTE! Você derrotou um CHEFE da floresta!")
+            print("🎁 Você recebeu um: [BAÚ DO AVENTUREIRO]!")
+            input("\nPressione Enter para girar o Baú de Chefe...")
+            item_sorteado = abrir_bau_roleta("Aventureiro")
+        else:
+            print("\n⚔️ Limpeza concluída na masmorra!")
+            print("🎁 Você recebeu um: [BAÚ COMUM]!")
+            input("\nPressione Enter para girar o Baú Comum...")
+            item_sorteado = abrir_bau_roleta("Comum")
+            inventario[item_sorteado.id] = item_sorteado
+            input("\nPressione Enter para retornar ao menu...")
 
 # Start do mundo
 print("=== BEM-VINDO AO MUNDO DE D&D ===")
@@ -351,7 +374,7 @@ while jogo_rodando and vida_atual > 0:
         jogo_rodando = False
         
     elif escolha == "4":
-        item_sorteado = abrir_bau_roleta()
+        item_sorteado = abrir_bau_roleta("Comum")
         inventario[item_sorteado.id] = item_sorteado
         input("\nPressione Enter para continuar...")
         
@@ -367,7 +390,7 @@ while jogo_rodando and vida_atual > 0:
 #Combate: minimamente aceitavel (Ruim)
 #Magia: muito ruim
 #Lore: inexistente
-#Bau: muito ruim
+#Bau: meio ruim
 #Nivel do mundo: inexistente
 #Dificuldade: fácil
 

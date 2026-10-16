@@ -43,27 +43,19 @@ ITENS_UNICOS = {
 
 BANCO_INIMIGOS = {
     "Cobra Gigante (Black Snake)": {
-        "vida": 25, 
-        "forca": 6, 
-        "resistencia": 4,
+        "vida": 25, "forca": 6, "resistencia": 4, "tipo": "normal",
         "descricao": "Criatura perigosa da caverna."
     },
     "Morcego Gigante (Evil Bat)": {
-        "vida": 18, 
-        "forca": 4, 
-        "resistencia": 2,
-        "descricao": "Monstro local ótimo para testar suas primeiras habilidades."
+        "vida": 18, "forca": 4, "resistencia": 2, "tipo": "normal",
+        "descricao": "Monstro local ótimo para testar suas habilidades."
     },
     "Centopeia Maldita (Evil Centipede)": {
-        "vida": 22, 
-        "forca": 5, 
-        "resistencia": 5,
+        "vida": 22, "forca": 5, "resistencia": 5, "tipo": "normal",
         "descricao": "Inseto gigante da masmorra."
     },
     "Lobo Gigante Líder (Direwolf Boss)": {
-        "vida": 50, 
-        "forca": 12, 
-        "resistencia": 8,
+        "vida": 50, "forca": 12, "resistencia": 8, "tipo": "boss", # 🌟 Identificado como BOSS
         "descricao": "O primeiro grande rival da Floresta de Jura!"
     }
 }
