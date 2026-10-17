@@ -351,7 +351,7 @@ while jogo_rodando and vida_atual > 0:
             
             opcao_filtro = input("Sua opção: ").strip()
             
-            # Define qual palavra-chave buscar no banco de dados com base na escolha
+            
             tipo_filtrado = ""
             if opcao_filtro == "1": tipo_filtrado = "arma"
             elif opcao_filtro == "2": tipo_filtrado = "armadura"
@@ -365,7 +365,7 @@ while jogo_rodando and vida_atual > 0:
                 time.sleep(1)
                 continue
             
-            # Cria a lista contendo apenas os itens que combinam com o filtro selecionado
+            
             itens_filtrados = [item for item in inventario.values() if item.tipo == tipo_filtrado]
             
             filtrando = True
@@ -380,7 +380,7 @@ while jogo_rodando and vida_atual > 0:
                     filtrando = False
                     continue
                 
-                # Lista os itens filtrados numerando por slots (1, 2, 3...)
+                
                 for indice, item in enumerate(itens_filtrados, start=1):
                     status_uso = " [EM USO]" if item in equipados.values() else ""
                     print(f"📦 SLOT: {indice} | {item.nome_colorido}{status_uso}")
@@ -397,7 +397,7 @@ while jogo_rodando and vida_atual > 0:
                     if escolha_slot.isdigit() and 1 <= int(escolha_slot) <= len(itens_filtrados):
                         item_selecionado = itens_filtrados[int(escolha_slot) - 1]
                         
-                        # Submenu de detalhes e ação do item selecionado
+                        
                         detalhes_ativos = True
                         while detalhes_ativos:
                             limpar_tela()
@@ -423,12 +423,12 @@ while jogo_rodando and vida_atual > 0:
                             decisao = input("Escolha uma ação: ").strip()
                             
                             if decisao == "1":
-                                # Coloca o item no slot correspondente do corpo
+                                
                                 equipados[item_selecionado.tipo] = item_selecionado
                                 print(f"\n✅ {item_selecionado.nome_colorido} foi equipado com sucesso!")
                                 time.sleep(1.5)
                                 detalhes_ativos = False
-                                filtrando = False # Atualiza as listas e marcadores de [EM USO]
+                                filtrando = False
                             elif decisao == "2":
                                 detalhes_ativos = False
                     else:
@@ -458,7 +458,7 @@ while jogo_rodando and vida_atual > 0:
 
 
 #Coisas para fazer ou melhorar 
-#Qualdade de vida: ++-
+#Qualdade de vida: ok até
 #Mosntros: ta muito ruim
 #Combate: minimamente aceitavel (Ruim)
 #Magia: muito ruim
