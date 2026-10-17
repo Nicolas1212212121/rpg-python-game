@@ -337,33 +337,106 @@ while jogo_rodando and vida_atual > 0:
     limpar_tela()
     
     if escolha == "1":
+        mochila_ativa = True
+        while mochila_ativa:
+            limpar_tela()
+            print("🎒 ======= MOCHILA DO AVENTUREIRO =======")
+            print("Escolha uma categoria para filtrar:")
+            print("1 - Ver Armas")
+            print("2 - Ver Armaduras")
+            print("3 - Ver Habilidades")
+            print("4 - Ver Itens (Consumíveis)")
+            print("5 - Voltar ao Menu Principal")
+            print("=========================================")
+            
+            opcao_filtro = input("Sua opção: ").strip()
+            
+            # Define qual palavra-chave buscar no banco de dados com base na escolha
+            tipo_filtrado = ""
+            if opcao_filtro == "1": tipo_filtrado = "arma"
+            elif opcao_filtro == "2": tipo_filtrado = "armadura"
+            elif opcao_filtro == "3": tipo_filtrado = "habilidade"
+            elif opcao_filtro == "4": tipo_filtrado = "item"
+            elif opcao_filtro == "5":
+                mochila_ativa = False
+                continue
+            else:
+                print("\n❌ Opção inválida.")
+                time.sleep(1)
+                continue
+            
+            # Cria a lista contendo apenas os itens que combinam com o filtro selecionado
+            itens_filtrados = [item for item in inventario.values() if item.tipo == tipo_filtrado]
+            
+            filtrando = True
+            while filtrando:
+                limpar_tela()
+                print(f"🎒 ======= FILTRO: {tipo_filtrado.upper()}S =======")
+                
+                if not itens_filtrados:
+                    print(f"   Você não carrega nenhuma {tipo_filtrado} na mochila.")
+                    print("-----------------------------------------")
+                    input("\nPressione Enter para voltar às categorias...")
+                    filtrando = False
+                    continue
+                
+                # Lista os itens filtrados numerando por slots (1, 2, 3...)
+                for indice, item in enumerate(itens_filtrados, start=1):
+                    status_uso = " [EM USO]" if item in equipados.values() else ""
+                    print(f"📦 SLOT: {indice} | {item.nome_colorido}{status_uso}")
+                print("-----------------------------------------")
+                
+                print("O que deseja fazer?")
+                print("1 - Selecionar um item (Equipar / Ver Detalhes)")
+                print("2 - Voltar para as categorias")
+                acao_filtro = input("Opção: ").strip()
+                
+                if acao_filtro == "1":
+                    escolha_slot = input("Digite o número do SLOT do item: ").strip()
+                    
+                    if escolha_slot.isdigit() and 1 <= int(escolha_slot) <= len(itens_filtrados):
+                        item_selecionado = itens_filtrados[int(escolha_slot) - 1]
+                        
+                        # Submenu de detalhes e ação do item selecionado
+                        detalhes_ativos = True
+                        while detalhes_ativos:
+                            limpar_tela()
+                            print("🔍 ======= DETALHES DO EQUIPAMENTO =======")
+                            print(f"📝 Nome: {item_selecionado.nome_colorido}")
+                            print(f"📦 Categoria: {item_selecionado.tipo.capitalize()}")
+                            print(f"⭐ Raridade: {item_selecionado.raridade}")
+                            print("\n📊 ATRIBUTOS:")
+                            print(f"  • Bônus de Força: +{item_selecionado.bonus_forca}")
+                            print(f"  • Bônus de Defesa: +{item_selecionado.bonus_resistencia}")
+                            print(f"  • Bônus de Magia: +{item_selecionado.bonus_inteligencia}")
+                            print(f"  • Roubo de Vida: {item_selecionado.roubo_vida}%")
+                            print(f"  • Chance de Crítico: {item_selecionado.taxa_critica}%")
+                            
+                            if item_selecionado.tipo == "item":
+                                print(f"  • Durabilidade: {item_selecionado.durabilidade_atual}/{item_selecionado.durabilidade_maxima}")
+                            if item_selecionado.tipo == "habilidade":
+                                print(f"  • Custo de Mana: {item_selecionado.custo_mana} MP")
+                            print("-----------------------------------------")
+                            
+                            print("1 - Equipar este item")
+                            print("2 - Voltar à lista")
+                            decisao = input("Escolha uma ação: ").strip()
+                            
+                            if decisao == "1":
+                                # Coloca o item no slot correspondente do corpo
+                                equipados[item_selecionado.tipo] = item_selecionado
+                                print(f"\n✅ {item_selecionado.nome_colorido} foi equipado com sucesso!")
+                                time.sleep(1.5)
+                                detalhes_ativos = False
+                                filtrando = False # Atualiza as listas e marcadores de [EM USO]
+                            elif decisao == "2":
+                                detalhes_ativos = False
+                    else:
+                        print("\n❌ SLOT inválido.")
+                        time.sleep(1)
+                elif acao_filtro == "2":
+                    filtrando = False
         limpar_tela()
-        print("🎒 ======= MOCHILA DO AVENTUREIRO =======")
-        if not inventario:
-            print("   Sua mochila está completamente vazia!")
-            input("\nPressione Enter para continuar...")
-        else:
-            slots_mochila = list(inventario.values())
-            for indice, item in enumerate(slots_mochila, start=1):
-                status_uso = " [EM USO]" if item in equipados.values() else ""
-                print(f"📦 SLOT: {indice}\n{item.nome_colorido}{status_uso}")
-                print(f"   Tipo: {item.tipo.capitalize()}")
-                print(f"   Status: Força+{item.bonus_forca}\nDefesa+{item.bonus_resistencia}\nMagia+{item.bonus_inteligencia}\nRouboVida+{item.roubo_vida}%\nCrítico+{item.taxa_critica}%")
-                if item.tipo == "item":
-                    print(f"   🛡️ Durabilidade: {item.durabilidade_atual}/{item.durabilidade_maxima}")
-                print("-" * 40)
-                
-            print("\nO que deseja fazer?\n1 - Equipar um item por SLOT\n2 - Voltar ao menu")
-            if input("Opção: ") == "1":
-                escolha_slot = input("Digite o número do SLOT do item que quer equipar: ").strip()
-                if escolha_slot.isdigit() and 1 <= int(escolha_slot) <= len(slots_mochila):
-                    item_selecionado = slots_mochila[int(escolha_slot) - 1]
-                    equipados[item_selecionado.tipo] = item_selecionado
-                    print(f"\n✅ {item_selecionado.nome_colorido} foi equipado!")
-                else:
-                    print("\n❌ SLOT inválido.")
-                input("\nPressione Enter para continuar...")
-                
     elif escolha == "2":
         vida_atual = min(vida_maxima, vida_atual + 10)
         mana_atual = min(mana_maxima, mana_atual + 15)
@@ -404,3 +477,4 @@ while jogo_rodando and vida_atual > 0:
 #Combo de magia
 #Fraquesa de inimigo
 #Parte tecnica da magia
+
