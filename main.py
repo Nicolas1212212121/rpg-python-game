@@ -468,7 +468,6 @@ while jogo_rodando and vida_atual > 0:
 #Dificuldade: fácil
 
 
-
 #talvez fazer porque estou com preguiça
 #Liga
 #Mob lot unic
