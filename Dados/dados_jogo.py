@@ -42,6 +42,7 @@ ITENS_UNICOS = {
 }
 
 BANCO_INIMIGOS = {
+    
     "Cobra Gigante (Black Snake)": {
         "vida": 25, "forca": 6, "resistencia": 4, "tipo": "normal",
         "descricao": "Criatura perigosa da caverna."
@@ -57,5 +58,57 @@ BANCO_INIMIGOS = {
     "Lobo Gigante Líder (Direwolf Boss)": {
         "vida": 50, "forca": 12, "resistencia": 8, "tipo": "boss",
         "descricao": "O primeiro grande rival da Floresta de Jura!"
+    }
+}
+BANCO_HABILIDADES = {
+
+    "Bola de Fogo": {
+        "custo_mana": 12, "tipo": "Ataque", "potencia": 15, "efeito": "Nenhum",
+        "descricao": "Dispara uma bola de fogo ardente contra o inimigo."
+    },
+    "Cura Divina": {
+        "custo_mana": 15, "tipo": "Efeito", "potencia": 12, "efeito": "Cura",
+        "descricao": "Evoca luz sagrada para restaurar os pontos de vida."
+    },
+    "Passo Sombrio": {
+        "custo_mana": 8, "tipo": "Passiva", "potencia": 5, "efeito": "Esquiva",
+        "descricao": "Move-se pelas sombras, aumentando a agilidade temporariamente."
+    },
+    "Fúria do Deserto": {
+        "custo_mana": 20, "tipo": "Ataque", "potencia": 22, "efeito": "Nenhum",
+        "descricao": "Invoca uma tempestade de areia cortante."
+    },
+    
+    "Ondas Ultrassônicas": {
+        "custo_mana": 10, "tipo": "Ataque", "potencia": 10, "efeito": "Atordoamento",
+        "descricao": "Emite ondas sonoras de alta frequência que perturbam o inimigo."
+    },
+    "Voar/Planar": {
+        "custo_mana": 5, "tipo": "Passiva", "potencia": 8, "efeito": "Esquiva",
+        "descricao": "Permite pairar no ar, tornando os ataques inimigos difíceis de acertar."
+    },
+    "Fios Resistentes": {
+        "custo_mana": 12, "tipo": "Efeito", "potencia": 6, "efeito": "Prender",
+        "descricao": "Cria linhas de aço quase invisíveis para restringir o alvo."
+    },
+    "Teias Pegajosas": {
+        "custo_mana": 10, "tipo": "Efeito", "potencia": 0, "efeito": "Lentidão",
+        "descricao": "Dispara teias viscosas que reduzem a velocidade de ação inimiga."
+    },
+    "Sopro de Paralisia": {
+        "custo_mana": 15, "tipo": "Efeito", "potencia": 5, "efeito": "Paralisia",
+        "descricao": "Expele uma névoa roxa com alta chance de paralisar o oponente."
+    },
+    "Sopro Venenoso": {
+        "custo_mana": 18, "tipo": "Ataque", "potencia": 14, "efeito": "Veneno",
+        "descricao": "Dispara um jato corrosivo que drena a vida a cada turno."
+    },
+    "Percepção de Calor": {
+        "custo_mana": 0, "tipo": "Passiva", "potencia": 0, "efeito": "Rastrear",
+        "descricao": "Permite enxergar assinaturas térmicas, anulando camuflagens."
+    },
+    "Armadura Corporal": {
+        "custo_mana": 0, "tipo": "Passiva", "potencia": 10, "efeito": "Defesa",
+        "descricao": "Endurece a pele como escamas de dragão, aumentando a resistência física."
     }
 }

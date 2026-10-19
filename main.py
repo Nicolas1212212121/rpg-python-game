@@ -73,7 +73,7 @@ def abrir_bau_roleta(tipo_bau: str):
 
     lista_animacao = ["Comum", "Incomum", "Raro", "Épico", "Lendário", "Tesouro Nacional"]
     
-    #Tipo do baú para o sorteio_calcular os bônus
+    #Tipo do baú para o sorteio_calcular
     raridade_final = sortear_raridade(tipo_bau)
     item_ganho = criar_item_por_raridade(raridade_final)
     
@@ -122,6 +122,9 @@ def calcular_atributos():
         
     return forca_total, resistencia_total, inteligencia_total, roubo_vida_total, critico_total
 
+
+
+
 @dataclass
 class Item:
     nome: str
@@ -142,27 +145,45 @@ class Item:
         cor = RARIDADES.get(self.raridade, {"cor": "\033[0m"})["cor"]
         return f"{cor}[{self.raridade}] {self.nome}{RESET_COR}"
 
+@dataclass
+class Habilidade:
+    nome: str
+    custo_mana: int
+    tipo: str              # Ataque, Defesa, Passiva, Efeito
+    descricao: str
+    potencia: int = 0      # Pode ser o dano base ou a eficácia do efeito
+    efeito: str = "Nenhum" # Paralisia, Veneno, Esquiva, Escudo.
+    duracao_base: int = 0
+    id: str = field(default_factory=lambda: str(uuid.uuid4())[:8])
+    @property
+    def nome_colorido(self) -> str:
+        # Usa a cor roxa/magenta (\033[35m)
+        return f"\033[35m[Habilidade] {self.nome}{RESET_COR}"
+
+
+    
 def limpar_tela():
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def sortear_raridade(tipo_bau: str) -> str:
-    sorteio = random.randint(1, 100) + sorte
+def sortear_raridade(tipo_bau: str) -> str:  #Baus lut
+    global sorte, nivel_do_mundo
+    sorteio = random.randint(1, 100 + nivel_do_mundo) + sorte
     
     if tipo_bau == "Aventureiro":
+        if sorteio <= 40: return "Incomum"
+        elif sorteio <= 75: return "Raro"
+        elif sorteio <= 110: return "Épico"          
+        elif sorteio <= 150: return "Lendário"       
+        else: return "Tesouro Nacional"              
         
-        if sorteio <= 30: return "Incomum"
-        if sorteio <= 65: return "Raro"
-        if sorteio <= 85: return "Épico"
-        if sorteio <= 96: return "Lendário"
-        return "Tesouro Nacional"
     else:
-
+        # Baú Comum / Roleta padrão
         if sorteio <= 50: return "Comum"         
-        if sorteio <= 75: return "Incomum"     
-        if sorteio <= 90: return "Raro"             
-        if sorteio <= 97: return "Épico"            
-        if sorteio <= 99: return "Lendário"       
-        return "Tesouro Nacional"           
+        elif sorteio <= 85: return "Incomum"     
+        elif sorteio <= 120: return "Raro"           
+        elif sorteio <= 160: return "Épico"          
+        elif sorteio <= 220: return "Lendário"       
+        else: return "Tesouro Nacional"           
 
 def iniciar_combate():
     global vida_atual, mana_atual
@@ -170,6 +191,13 @@ def iniciar_combate():
     inimigo_vida = dados["vida"]
     inimigo_forca = dados["forca"]
     inimigo_res = dados["resistencia"]
+
+    #efeitos
+    status_jogador = {"veneno": 0, "paralisia": 0}
+    status_inimigo = {"veneno": 0, "paralisia": 0}
+
+    dano_veneno_jogador = 3
+    dano_veneno_inimigo = 3 
     
     limpar_tela()
     print("==================================================")
@@ -181,7 +209,21 @@ def iniciar_combate():
     while inimigo_vida > 0 and vida_atual > 0:
         forca_t, res_t, intel_t, roubo_t, crit_t = calcular_atributos()
         defendendo = False
-        
+        if status_inimigo["veneno"] > 0:
+            inimigo_vida -= dano_veneno_jogador
+            print(f"🤢 O {nome_inimigo} sofreu {dano_veneno_jogador} de dano por Veneno! (Restam {status_inimigo['veneno']} turnos)")
+            status_inimigo["veneno"] -= 1
+            if inimigo_vida <= 0: 
+                break
+            time.sleep(1)
+
+        if status_jogador["veneno"] > 0:
+            vida_atual -= dano_veneno_inimigo
+            print(f"🤢 Você sofreu {dano_veneno_inimigo} de dano por Veneno! (Restam {status_jogador['veneno']} turnos)")
+            status_jogador["veneno"] -= 1
+            if vida_atual <= 0: 
+                break
+            time.sleep(1)
         limpar_tela()
         print(f"👹 {nome_inimigo} HP: {inimigo_vida}")
         print(f"💖 Seu HP: {vida_atual}/{vida_maxima} | 🧪 Mana: {mana_atual}/{mana_maxima}\n")
@@ -204,7 +246,7 @@ def iniciar_combate():
                 print(f"🧛 Roubo de Vida: Recuperou {cura} de HP.")
                 
         elif opcao_luta == "2":
-            # Filtra as habilidades do inventário max: 3
+            # Filtra as habilidades do inventário max 3
             skills_disponiveis = [item for item in inventario.values() if item.tipo == "habilidade"][:3]
             
             if not skills_disponiveis:
@@ -224,11 +266,16 @@ def iniciar_combate():
             idx_skill = int(escolha_skill) - 1
             if 0 <= idx_skill < len(skills_disponiveis):
                 skill_usada = skills_disponiveis[idx_skill]
+
                 if mana_atual >= skill_usada.custo_mana:
                     mana_atual -= skill_usada.custo_mana
                     dano_magico = max(5, intel_t + skill_usada.bonus_inteligencia - inimigo_res)
                     inimigo_vida -= dano_magico
                     print(f"\n✨ Você conjurou {skill_usada.nome} e causou {dano_magico} de dano mágico!")
+
+                    if getattr(skill_usada, 'efeito', None) == "Veneno":
+                        status_inimigo["veneno"] = 3  # Reseta para 3 turnos se usar de novo
+                        print(f"🟢 {nome_inimigo} foi infectado por Veneno (3 turnos)!")
                 else:
                     print("\n❌ Mana insuficiente para conjurar esta habilidade!")
                     input("Pressione Enter para voltar...")
@@ -290,7 +337,7 @@ def iniciar_combate():
             input("\nPressione Enter para retornar ao menu...")
 
 # Start do mundo
-print("=== BEM-VINDO AO MUNDO DE D&D ===")
+print("=== BEM-VINDO AO MUNDO ===")
 nome_personagem = input('Nome do seu personagem: ')
 
 forca_base = random.randint(1, 15)
@@ -301,10 +348,10 @@ mana_maxima = random.randint(20, 50)
 mana_atual = mana_maxima
 resistencia_base = random.randint(1, 20)
 esquiva = random.randint(1, 10)
-sorte = random.randint(1, 10)
-
+sorte = random.randint(1, 20)
 forca_total = forca_base
 resistencia_total = resistencia_base
+nivel_do_mundo = 1
 
 inventario = {}
 # Slot de player
@@ -318,8 +365,11 @@ limpar_tela()
 jogo_rodando = True
 while jogo_rodando and vida_atual > 0:
     forca_total, resistencia_total, inteligencia_total, roubo_vida_total, critico_total = calcular_atributos()
-
-    print(f"\n--- [STATUS ATRIBUÍDOS AO HERÓI] ---")
+    print("=== PRIMEIRA CAPTULO 01 ===")
+    print("======== CAVERNA =======")
+    time.sleep(2)
+    limpar_tela()
+    print(f"\n--- [STATUS ATRIBUÍDOS] ---")
     print(f"💪 Força: {forca_total} (Base: {forca_base}) | 🧠 Inteligência: {inteligencia_total}")
     print(f"🛡️ Resistência: {resistencia_total} | ❤️ Vida: {vida_atual}/{vida_maxima}")
     print(f"🧪 Mana do Jogador: {mana_atual}/{mana_maxima}")
