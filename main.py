@@ -6,7 +6,7 @@ import random
 import time 
 import uuid
 
-from Dados.dados_jogo import RARIDADES, RESET_COR, ARMAS, ARMADURAS, HABILIDADES_NOMES, CONSUMIVEIS, BANCO_INIMIGOS, ITENS_UNICOS #lembrar de sempre ter os importes nos dados
+from Dados.dados_jogo import RARIDADES, RESET_COR, ARMAS, ARMADURAS, HABILIDADES_NOMES, CONSUMIVEIS, BANCO_INIMIGOS, ITENS_UNICOS #lembrar de sempre ter os importes no arquivo principal, caso contrario da erro de importação
 
 
 
@@ -147,13 +147,13 @@ class Item:
 
 @dataclass
 class Habilidade:
-    nome: str
-    custo_mana: int
-    tipo: str              # Ataque, Defesa, Passiva, Efeito
-    descricao: str
-    potencia: int = 0      # Pode ser o dano base ou a eficácia do efeito
-    efeito: str = "Nenhum" # Paralisia, Veneno, Esquiva, Escudo.
-    duracao_base: int = 0
+    nome: str # Nome da habilidade
+    custo_mana: int # Custo de mana para usar a habilidade
+    tipo: str      # Pode ser "Ataque", "Defesa", "Suporte", etc.
+    descricao: str # Descrição detalhada da habilidade
+    potencia: int = 0      # Potência do efeito ou dano
+    efeito: str = "Nenhum" # Pode ser "Veneno", "Paralisia", "Cura", etc.
+    duracao_base: int = 0   #tempo de duração do efeito em turnos
     id: str = field(default_factory=lambda: str(uuid.uuid4())[:8])
     @property
     def nome_colorido(self) -> str:
@@ -162,7 +162,7 @@ class Habilidade:
 
 
     
-def limpar_tela():
+def limpar_tela(): 
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def sortear_raridade(tipo_bau: str) -> str:  #Baus lut
@@ -177,7 +177,7 @@ def sortear_raridade(tipo_bau: str) -> str:  #Baus lut
         else: return "Tesouro Nacional"              
         
     else:
-        # Baú Comum / Roleta padrão
+        # Baú Comum Roleta baseado no nivel do mundo e sorte do jogador
         if sorteio <= 50: return "Comum"         
         elif sorteio <= 85: return "Incomum"     
         elif sorteio <= 120: return "Raro"           
