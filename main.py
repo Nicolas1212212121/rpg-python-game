@@ -103,6 +103,7 @@ def calcular_atributos():
     forca_total = forca_base
     resistencia_total = resistencia_base
     inteligencia_total = inteligencia 
+    velocidade_total = velocidade_base 
     roubo_vida_total = 0
     critico_total = 0
     
@@ -120,7 +121,7 @@ def calcular_atributos():
     if equipados["item"]:
         inteligencia_total += equipados["item"].bonus_inteligencia
         
-    return forca_total, resistencia_total, inteligencia_total, roubo_vida_total, critico_total
+    return forca_total, resistencia_total, inteligencia_total, roubo_vida_total, critico_total, velocidade_total
 
 
 
@@ -186,140 +187,186 @@ def sortear_raridade(tipo_bau: str) -> str:  #Baus lut
         else: return "Tesouro Nacional"           
 
 def iniciar_combate():
-    global vida_atual, mana_atual
+    global vida_atual, mana_atual, esquiva, vida_maxima
+    
+    # 1. Seleciona um inimigo aleatório do banco de inimigos
     nome_inimigo, dados = random.choice(list(BANCO_INIMIGOS.items()))
     inimigo_vida = dados["vida"]
     inimigo_forca = dados["forca"]
     inimigo_res = dados["resistencia"]
-
-    #efeitos
+    
+    # 2. Determina a velocidade do inimigo, com valor padrão caso não esteja definido
+    inimigo_vel = dados.get("velocidade", 10) 
+    
+    # Calcula os atributos do jogador com base nos itens equipados
+    forca_t, res_t, intel_t, roubo_t, crit_t, vel_t = calcular_atributos()
+    jogador_vel = vel_t  
+    
+    # Efeitos de status
     status_jogador = {"veneno": 0, "paralisia": 0}
     status_inimigo = {"veneno": 0, "paralisia": 0}
-
-    dano_veneno_jogador = 3
-    dano_veneno_inimigo = 3 
+    dano_veneno_fixo = 3
+    
+    # Calcula os tempos de ação (AV) iniciais para o jogador e inimigo
+    av_jogador = 10000 / jogador_vel
+    av_inimigo = 10000 / inimigo_vel
     
     limpar_tela()
     print("==================================================")
     print(f"⚔️ UM {nome_inimigo.upper()} EMBOSCOU VOCÊ!")
     print(f"📜 Descrição: {dados['descricao']}")
+    print(f"🏃 Sua Velocidade: {jogador_vel} | 🏃 Vel. do Monstro: {inimigo_vel}")
     print("==================================================")
     time.sleep(2)
     
+    # Ciclo de Combate baseado em Linha do Tempo
     while inimigo_vida > 0 and vida_atual > 0:
-        forca_t, res_t, intel_t, roubo_t, crit_t = calcular_atributos()
-        defendendo = False
-        if status_inimigo["veneno"] > 0:
-            inimigo_vida -= dano_veneno_jogador
-            print(f"🤢 O {nome_inimigo} sofreu {dano_veneno_jogador} de dano por Veneno! (Restam {status_inimigo['veneno']} turnos)")
-            status_inimigo["veneno"] -= 1
-            if inimigo_vida <= 0: 
-                break
-            time.sleep(1)
-
-        if status_jogador["veneno"] > 0:
-            vida_atual -= dano_veneno_inimigo
-            print(f"🤢 Você sofreu {dano_veneno_inimigo} de dano por Veneno! (Restam {status_jogador['veneno']} turnos)")
-            status_jogador["veneno"] -= 1
-            if vida_atual <= 0: 
-                break
-            time.sleep(1)
-        limpar_tela()
-        print(f"👹 {nome_inimigo} HP: {inimigo_vida}")
-        print(f"💖 Seu HP: {vida_atual}/{vida_maxima} | 🧪 Mana: {mana_atual}/{mana_maxima}\n")
-        print("1 - Ataque Físico")
-        print("2 - Usar Habilidade")
-        print("3 - Defender (Reduz dano recebido)")
-        print("4 - Tentar Recuar")
-        opcao_luta = input("Escolha sua ação: ")
-        
-        if opcao_luta == "1":
-            dano = max(2, forca_t - inimigo_res)
-            if random.randint(1, 100) <= crit_t:
-                dano *= 2
-                print("\n🎯 CRÍTICO! Dano duplicado!")
-            inimigo_vida -= dano
-            print(f"💥 Você causou {dano} de dano físico!")
-            if roubo_t > 0:
-                cura = max(1, (dano * roubo_t) // 100)
-                vida_atual = min(vida_maxima, vida_atual + cura)
-                print(f"🧛 Roubo de Vida: Recuperou {cura} de HP.")
-                
-        elif opcao_luta == "2":
-            # Filtra as habilidades do inventário max 3
-            skills_disponiveis = [item for item in inventario.values() if item.tipo == "habilidade"][:3]
+        # Determina quem age primeiro baseado no MENOR valor de AV atual
+        if av_jogador <= av_inimigo:
+            # --- TURNO DO JOGADOR ---
+            tempo_passado = av_jogador
+            av_inimigo -= tempo_passado # Avança a barra do inimigo pelo tempo decorrido
+            av_jogador = 10000 / jogador_vel # Reseta o custo de ação do jogador para sua velocidade
             
-            if not skills_disponiveis:
-                print("\n❌ Você não possui nenhuma habilidade na mochila!")
-                input("Pressione Enter para voltar...")
-                continue
-                
-            print("\n🔮 --- SEU GRIMÓRIO DE HABILIDADES ---")
-            for idx, skill in enumerate(skills_disponiveis, start=1):
-                print(f"  {idx} - {skill.nome_colorido} (Custo: {skill.custo_mana} Mana | Bônus Magia: +{skill.bonus_inteligencia})")
-            print("  0 - Voltar")
-            
-            escolha_skill = input("Escolha a habilidade: ").strip()
-            if escolha_skill == "0" or not escolha_skill.isdigit():
-                continue
-                
-            idx_skill = int(escolha_skill) - 1
-            if 0 <= idx_skill < len(skills_disponiveis):
-                skill_usada = skills_disponiveis[idx_skill]
-
-                if mana_atual >= skill_usada.custo_mana:
-                    mana_atual -= skill_usada.custo_mana
-                    dano_magico = max(5, intel_t + skill_usada.bonus_inteligencia - inimigo_res)
-                    inimigo_vida -= dano_magico
-                    print(f"\n✨ Você conjurou {skill_usada.nome} e causou {dano_magico} de dano mágico!")
-
-                    if getattr(skill_usada, 'efeito', None) == "Veneno":
-                        status_inimigo["veneno"] = 3  # Reseta para 3 turnos se usar de novo
-                        print(f"🟢 {nome_inimigo} foi infectado por Veneno (3 turnos)!")
-                else:
-                    print("\n❌ Mana insuficiente para conjurar esta habilidade!")
-                    input("Pressione Enter para voltar...")
-                    continue
-            else:
-                print("\n❌ Opção inválida.")
-                continue
-                
-        elif opcao_luta == "3":
-            defendendo = True
-            print("\n🛡️ Você se posicionou defensivamente, erguendo sua guarda!")
-            
-        else:
-            if random.randint(1, 100) <= esquiva * 5:
-                print("\n🏃 Você conseguiu recuar do combate em segurança!")
+            # Processa status no início do turno do jogador
+            if status_jogador["veneno"] > 0:
+                vida_atual -= dano_veneno_fixo
+                print(f"\n🤢 Você sofreu {dano_veneno_fixo} de dano por Veneno! (Restam {status_jogador['veneno']} ações)")
+                status_jogador["veneno"] -= 1
+                if vida_atual <= 0: break
                 time.sleep(1)
-                return
-            print("\n群体 Falhou ao tentar recuar!")
             
-        if inimigo_vida <= 0:
-            break
+            defendendo = False
+            limpar_tela()
+            print("================== TURNO DO JOGADOR ==================")
+            print(f"👹 {nome_inimigo} HP: {inimigo_vida} | [AV Próximo Ataque: {int(av_inimigo)}]")
+            print(f"💖 Seu HP: {vida_atual}/{vida_maxima} | 🧪 Mana: {mana_atual}/{mana_maxima}")
+            print("======================================================")
+            print("1 - Ataque Físico")
+            print("2 - Usar Habilidade")
+            print("3 - Defender (Reduz dano recebido)")
+            print("4 - Tentar Recuar")
+            opcao_luta = input("Escolha sua ação: ")
             
-        time.sleep(1.2)
-        
-        # Turno do Inimigo
-        print(f"\n🥊 O {nome_inimigo} ataca!")
-        if random.randint(1, 100) <= esquiva and not defendendo:
-            print("💨 Sensacional! Você se esquivou completamente!")
+            if opcao_luta == "1":
+                dano = max(2, forca_t - inimigo_res)
+                if random.randint(1, 100) <= crit_t:
+                    dano *= 2
+                    print("\n🎯 CRÍTICO! Dano duplicado!")
+                inimigo_vida -= dano
+                print(f"💥 Você causou {dano} de dano físico!")
+                if roubo_t > 0:
+                    cura = max(1, (dano * roubo_t) // 100)
+                    vida_atual = min(vida_maxima, vida_atual + cura)
+                    print(f"🧛 Roubo de Vida: Recuperou {cura} de HP.")
+                    
+            elif opcao_luta == "2":
+                skills_disponiveis = [item for item in inventario.values() if item.tipo == "habilidade"][:3]
+                if not skills_disponiveis:
+                    print("\n❌ Você não possui nenhuma habilidade na mochila!")
+                    input("Pressione Enter para voltar e escolher outra ação...")
+                    av_jogador = 0 # Devolve o turno de graça para ele escolher de novo
+                    continue
+                    
+                print("\n🔮 --- SEU GRIMÓRIO DE HABILIDADES ---")
+                for idx, skill in enumerate(skills_disponiveis, start=1):
+                    print(f"  {idx} - {skill.nome_colorido} (Custo: {skill.custo_mana} Mana)")
+                print("  0 - Voltar")
+                
+                escolha_skill = input("Escolha a habilidade: ").strip()
+                if escolha_skill == "0" or not escolha_skill.isdigit():
+                    av_jogador = 0
+                    continue
+                    
+                idx_skill = int(escolha_skill) - 1
+                if 0 <= idx_skill < len(skills_disponiveis):
+                    skill_usada = skills_disponiveis[idx_skill]
+                    if mana_atual >= skill_usada.custo_mana:
+                        mana_atual -= skill_usada.custo_mana
+                        dano_magico = max(5, intel_t + skill_usada.bonus_inteligencia - inimigo_res)
+                        inimigo_vida -= dano_magico
+                        print(f"\n✨ Você conjurou {skill_usada.nome} e causou {dano_magico} de dano mágico!")
+                        
+                        # Aplica os turnos de efeito usando a propriedade duracao_base da classe nova
+                        if getattr(skill_usada, 'duracao_base', 0) > 0:
+                            efeito_nome = skill_usada.efeito.lower()
+                            if efeito_nome in status_inimigo:
+                                status_inimigo[efeito_nome] = skill_usada.duracao_base
+                                print(f"🟢 {nome_inimigo} recebeu o efeito [{skill_usada.efeito}] por {skill_usada.duracao_base} turnos de ação!")
+                    else:
+                        print("\n❌ Mana insuficiente!")
+                        input("Pressione Enter para voltar...")
+                        av_jogador = 0
+                        continue
+                else:
+                    av_jogador = 0
+                    continue
+                    
+            elif opcao_luta == "3":
+                defendendo = True
+                print("\n🛡️ Você ergueu sua guarda até sua próxima ação!")
+                
+            else:
+                if random.randint(1, 100) <= jogador_vel * 5:
+                    print("\n🏃 Você conseguiu recuar do combate em segurança!")
+                    time.sleep(1)
+                    return
+                print("\n❌ Falhou ao tentar recuar!")
+                
+            input("\nPressione Enter para continuar a linha do tempo...")
+            
         else:
+            # --- TURNO DO INIMIGO ---
+            tempo_passado = av_inimigo
+            av_jogador -= tempo_passado # Avança a barra do jogador pelo tempo decorrido
+            av_inimigo = 10000 / inimigo_vel # Reseta o custo de ação do inimigo para sua velocidade
+            
+            # Processa status no início do turno do inimigo
+            if status_inimigo["veneno"] > 0:
+                inimigo_vida -= dano_veneno_fixo
+                print(f"\n🤢 O {nome_inimigo} sofreu {dano_veneno_fixo} de dano por Veneno! (Restam {status_inimigo['veneno']} ações)")
+                status_inimigo["veneno"] -= 1
+                if inimigo_vida <= 0: break
+                time.sleep(1)
+                
+            print(f"\n🥊 O {nome_inimigo} está agindo! [AV Próximo Ataque: {int(av_inimigo)}]")
+            time.sleep(1)
+            
+            # Ataque do inimigo
             dano_sofrido = max(1, inimigo_forca - (res_t // 3))
-            if defendendo:
+            if 'defendendo' in locals() and defendendo:
                 dano_sofrido = max(1, dano_sofrido // 2)
                 print("🛡️ Guarda erguida! O dano do monstro foi reduzido pela metade!")
-            vida_atual -= dano_sofrido
-            print(f"💥 O monstro causou {dano_sofrido} de dano.")
             
-        input("\nPressione Enter para o próximo turno...")
+            vida_atual -= dano_sofrido
+            print(f"💥 O monstro causou {dano_sofrido} de dano em você.")
+            input("\nPressione Enter para continuar a linha do tempo...")
 
+    # Resultado do combate
     limpar_tela()
     if vida_atual <= 0:
         print("💀 Você foi derrotado... Fim de jogo.")
         time.sleep(2)
         exit()
     else:
+        print("==================================================")
+        print(f"🏆 VITÓRIA! O {nome_inimigo} foi derrotado!")
+        print("==================================================")
+        
+        if dados["tipo"] == "boss":
+            print("\n👑 IMPRESSIONANTE! Você derrotou um CHEFE da floresta!")
+            print("🎁 Você recebeu um: [BAÚ DO AVENTUREIRO]!")
+            input("\nPressione Enter para girar o Baú de Chefe...")
+            item_sorteado = abrir_bau_roleta("Aventureiro")
+        else:
+            print("\n⚔️ Limpeza concluída na masmorra!")
+            print("🎁 Você recebeu um: [BAÚ COMUM]!")
+            input("\nPressione Enter para girar o Baú Comum...")
+            item_sorteado = abrir_bau_roleta("Comum")
+            
+        inventario[item_sorteado.id] = item_sorteado
+        input("\nPressione Enter para retornar ao menu...")
+
         print("==================================================")
         print(f"🏆 VITÓRIA! O {nome_inimigo} foi derrotado!")
         print("==================================================")
@@ -340,6 +387,7 @@ def iniciar_combate():
 print("=== BEM-VINDO AO MUNDO ===")
 nome_personagem = input('Nome do seu personagem: ')
 
+# Inicialização de atributos do jogador randomizados
 forca_base = random.randint(1, 15)
 inteligencia = random.randint(1, 20)
 vida_maxima = random.randint(20, 40)
@@ -349,6 +397,7 @@ mana_atual = mana_maxima
 resistencia_base = random.randint(1, 20)
 esquiva = random.randint(1, 10)
 sorte = random.randint(1, 20)
+velocidade_base = random.randint(90, 110) 
 forca_total = forca_base
 resistencia_total = resistencia_base
 nivel_do_mundo = 1
@@ -364,7 +413,8 @@ limpar_tela()
 #inicio da aventura
 jogo_rodando = True
 while jogo_rodando and vida_atual > 0:
-    forca_total, resistencia_total, inteligencia_total, roubo_vida_total, critico_total = calcular_atributos()
+    forca_total, resistencia_total, inteligencia_total, roubo_vida_total, critico_total, velocidade_total = calcular_atributos()
+    
     print("=== PRIMEIRA CAPTULO 01 ===")
     print("======== CAVERNA =======")
     time.sleep(2)
@@ -372,7 +422,7 @@ while jogo_rodando and vida_atual > 0:
     print(f"\n--- [STATUS ATRIBUÍDOS] ---")
     print(f"💪 Força: {forca_total} (Base: {forca_base}) | 🧠 Inteligência: {inteligencia_total}")
     print(f"🛡️ Resistência: {resistencia_total} | ❤️ Vida: {vida_atual}/{vida_maxima}")
-    print(f"🧪 Mana do Jogador: {mana_atual}/{mana_maxima}")
+    print(f"🧪 Mana do Jogador: {mana_atual}/{mana_maxima} | 🏃 Velocidade: {velocidade_total}")
     print(f"💨 Esquiva: {esquiva}% | 🍀 Sorte: {sorte}%")
     print(f"🧛 Roubo de Vida: {roubo_vida_total}% | 🎯 Chance Crítico: {critico_total}%")
     print("=========================================\n")
