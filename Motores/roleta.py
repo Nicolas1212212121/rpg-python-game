@@ -43,19 +43,30 @@ def criar_item_por_raridade(raridade: str, nivel_mundo: int) -> Item | Habilidad
     elif tipo == "armadura":
         nome = random.choice(ARMADURAS)
     elif tipo == "habilidade":
-        nome = random.choice(list(BANCO_HABILIDADES.keys()))
+        # FILTRO DE RARIDADE: Procura no banco magias que batam com a raridade do baú
+        habilidades_da_raridade = [
+            nome_h for nome_h, dados_h in BANCO_HABILIDADES.items() 
+            if dados_h.get("raridade", "Comum") == raridade
+        ]
+        
+        # Se não achar nenhuma daquela raridade, pega uma Comum como garantia
+        if not habilidades_da_raridade:
+            nome = random.choice(list(BANCO_HABILIDADES.keys()))
+        else:
+            nome = random.choice(habilidades_da_raridade)
+            
         dados = BANCO_HABILIDADES[nome]
         return Habilidade(
             nome=nome, custo_mana=dados["custo_mana"], tipo_magia=dados["tipo"], 
-            potencia=dados["potencia"], efeito=dados["efeito"], descricao=dados["descricao"]
+            potencia_base=dados["potencia"], # <--- CORRIGIDO PARA POTENCIA_BASE AQUI!
+            efeito=dados["efeito"], descricao=dados["descricao"],
+            raridade=dados.get("raridade", "Comum"), duracao=dados.get("duracao_base", 3)
         )
     else:
         nome = random.choice(CONSUMIVEIS)
 
     item = Item(nome=nome, tipo=tipo, raridade=raridade)
     b_raridade = RARIDADES.get(raridade, {"bonus": 0})["bonus"]
-    
-    # Adiciona escalonamento baseado no nível do mundo
     modificador_mundo = 1 + (nivel_mundo * 0.1)
 
     if tipo == "arma":

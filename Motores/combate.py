@@ -1,6 +1,3 @@
-# ==========================================
-# LOCALIZAÇÃO: Motores/combate.py
-# ==========================================
 import random
 import time
 import os
@@ -18,7 +15,7 @@ def iniciar_combate(jogador: Jogador, contexto_jogo: dict):
     f_t, r_t, intel_t, roubo_t, crit_t, vel_t = jogador.calcular_atributos()
 
     
-    # Valores iniciais da Linha do Tempo (Action Value)
+    # Valores iniciais da Linha do Tempo (Action Value) (Sistema do Star Rail)
     av_jogador = 10000 / vel_t
     av_inimigo = 10000 / inimigo.velocidade
     
@@ -35,6 +32,7 @@ def iniciar_combate(jogador: Jogador, contexto_jogo: dict):
     # Loop de Combate Seguro
     while inimigo.vida_atual > 0 and jogador.vida_atual > 0:
         if av_jogador <= av_inimigo:
+            
             # --- TURNO DO JOGADOR ---
             # Avança o tempo do inimigo e reseta o custo do jogador de forma limpa
             av_inimigo -= av_jogador

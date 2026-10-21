@@ -28,9 +28,9 @@ magia_inicial = Habilidade(
     nome="Bola de Fogo", 
     custo_mana=12, 
     tipo_magia="Ataque", 
-    potencia=15, 
+    potencia_base=15,
     efeito="Nenhum", 
-    descricao="Dispara uma bola de fogo ardente."
+    descricao="Dispara uma bola de fogo ardente em direção ao inimigo."
 )
 jogador.inventario[magia_inicial.id] = magia_inicial
 
@@ -40,6 +40,7 @@ if input("Opção: ").strip() == "2":
 
 # Loop Principal do Jogo
 while contexto_jogo["jogo_rodando"] and jogador.vida_atual > 0:
+
     # Calcula os atributos dinâmicos baseados no que está equipado
     f_t, r_t, i_t, roubo_t, crit_t, vel_t = jogador.calcular_atributos()
     
@@ -57,6 +58,7 @@ while contexto_jogo["jogo_rodando"] and jogador.vida_atual > 0:
     
     escolha = input("Sua opção: ").strip()
     
+    # Abrir Mochila e Equipamentos
     if escolha == "1":
         mochila_ativa = True
         while mochila_ativa:
@@ -73,6 +75,7 @@ while contexto_jogo["jogo_rodando"] and jogador.vida_atual > 0:
             opcao_filtro = input("Sua opção: ").strip()
             tipo_filtrado = ""
             
+            # Define o tipo de filtro baseado na escolha do jogador
             if opcao_filtro == "1":
                 tipo_filtrado = "arma"
             elif opcao_filtro == "2":
@@ -104,7 +107,7 @@ while contexto_jogo["jogo_rodando"] and jogador.vida_atual > 0:
                     filtrando = False
                     continue
                     
-                # Lista os itens usando SLOTS numéricos sequenciais (1, 2, 3...)
+                # Lista os itens usando SLOTS numéricos sequenciais (1, 2, 3)
                 for slot_num, (idx_real, item) in enumerate(itens_exibição, start=1):
                     status_uso = ""
                     if tipo_filtrado in jogador.equipados and jogador.equipados[tipo_filtrado] == item:
@@ -123,6 +126,7 @@ while contexto_jogo["jogo_rodando"] and jogador.vida_atual > 0:
                     if escolha_slot.isdigit():
                         idx_slot = int(escolha_slot) - 1
                         if 0 <= idx_slot < len(itens_exibição):
+
                             # Resgata o ID único real do item selecionado pelo número do slot
                             id_real, item_selecionado = itens_exibição[idx_slot]
                             
@@ -188,21 +192,21 @@ while contexto_jogo["jogo_rodando"] and jogador.vida_atual > 0:
                 elif acao_filtro == "2":
                     filtrando = False
 
-                
+    # --- DESCANSAR NO ACAMPAMENTO (RESTAURAÇÃO DE VIDA E MANA) ---
     elif escolha == "2":
         jogador.vida_atual = jogador.vida_maxima
         jogador.mana_actual = jogador.mana_maxima
         print("\n💤 Você montou acampamento. Vida e Mana totalmente restauradas!"); 
         time.sleep(1.2)
-        
+    # Iniciar combate
     elif escolha == "3":
         iniciar_combate(jogador, contexto_jogo)
-        
+    # abrir um baú místico grátis (Para teste)
     elif escolha == "4":
         item_sorteado = abrir_bau_roleta("Comum", jogador, contexto_jogo["nivel_do_mundo"])
         jogador.inventario[item_sorteado.id] = item_sorteado
         input("\nPressione Enter para continuar...")
-        
+    # Fim do Loop Principal
     elif escolha == "5":
         contexto_jogo["jogo_rodando"] = False
         print("\n👋 Obrigado por jogar! Até a próxima aventura.")

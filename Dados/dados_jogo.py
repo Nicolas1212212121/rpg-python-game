@@ -10,8 +10,11 @@ RARIDADES = {
 RESET_COR = "\033[0m"
 
 ARMAS = ["Espada Espacial", "Machado Rúnico", "Adaga Sombria", "Arco Élfico", "Cajado de Dragão"]
+
 ARMADURAS = ["Escudo Relíquia", "Manto Arcano", "Cota de Mithril", "Elmo do Dragão", "Armadura de Placas"]
+
 HABILIDADES_NOMES = ["Bola de Fogo", "Cura Divina", "Passo Sombrio", "Fúria do Deserto"]
+
 CONSUMIVEIS = ["Poção de Vida", "Elixir de Mana", "Pergaminho Antigo", "Pedra de Amolar"]
 
 ITENS_UNICOS = {
@@ -57,6 +60,7 @@ BANCO_INIMIGOS = {
         "descricao": "O primeiro grande rival da Floresta de Jura!"
     }
 }
+
 BANCO_HABILIDADES = {
 
     "Bola de Fogo": {
