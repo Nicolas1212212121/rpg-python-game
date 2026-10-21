@@ -537,6 +537,7 @@ while jogo_rodando and vida_atual > 0:
                 elif acao_filtro == "2":
                     filtrando = False
         limpar_tela()
+        
     elif escolha == "2":
         vida_atual = min(vida_maxima, vida_atual + 10)
         mana_atual = min(mana_maxima, mana_atual + 15)
