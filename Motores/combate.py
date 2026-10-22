@@ -101,18 +101,25 @@ def iniciar_combate(jogador: Jogador, contexto_jogo: dict):
                 if jogador.mana_actual >= skill_usada.custo_mana:
                     jogador.mana_actual -= skill_usada.custo_mana
                     
+                    # 1. Se a habilidade for do tipo "Ataque", calcula e causa dano físico/mágico
                     if skill_usada.tipo_magia == "Ataque":
                         dano_m = max(4, skill_usada.potencia + (intel_t // 2) - inimigo.resistencia)
                         inimigo.vida_atual -= dano_m
                         print(f"\n✨ {skill_usada.nome} conjurado! Causou {dano_m} de dano mágico.")
-                        if skill_usada.efeito == "Veneno":
-                            inimigo.status["veneno"] = 3
-                            print(f"🟢 {inimigo.nome} começou a passar mal com efeito de Veneno!")
-                            
-                    elif skill_usada.tipo_magia == "Efeito" and skill_usada.efeito == "Cura":
-                        cura_m = skill_usada.potencia + (intel_t // 3)
-                        jogador.vida_atual = min(jogador.vida_maxima, jogador.vida_atual + cura_m)
-                        print(f"\n💚 Luz da cura! Você restaurou {cura_m} de vida.")
+                    
+                    # 2. Se a habilidade for puramente de "Efeito" (Como as Teias Pegajosas ou Cura Divina)
+                    elif skill_usada.tipo_magia == "Efeito":
+                        print(f"\n✨ {skill_usada.nome} conjurado com sucesso!")
+                    
+                    # Se a habilidade tiver um efeito definido, aplica o efeito no jogador ou inimigo conforme o tipo da magia
+                    if skill_usada.efeito and skill_usada.efeito != "Nenhum":
+                        jogador.aplicar_efeito(skill_usada.efeito, skill_usada.duracao, inimigo)
+                    
+                    # Sistema de Aprendizado / XP da Habilidade
+                    subiu_nivel = skill_usada.ganhar_xp()
+                    print(f"📖 Progresso de Domínio [{skill_usada.nome}]: {skill_usada.barra_aprendizado}")
+                    if subiu_nivel:
+                        print(f"✨ ¡UPGRADE! Sua maestria com [{skill_usada.nome}] aumentou! Nova potência: {skill_usada.potencia}")
                 else:
                     print("\n❌ Pontos de mana insuficientes!")
                     av_jogador = 0

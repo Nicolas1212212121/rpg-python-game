@@ -61,55 +61,78 @@ BANCO_INIMIGOS = {
     }
 }
 
+# ==========================================
+# LOCALIZAÇÃO: Dados/dados_jogo.py
+# ==========================================
 BANCO_HABILIDADES = {
-
+    # Comum ---
     "Bola de Fogo": {
         "custo_mana": 12, "tipo": "Ataque", "potencia": 15, "efeito": "Nenhum",
+        "raridade": "Comum", "duracao_base": 3,
         "descricao": "Dispara uma bola de fogo ardente contra o inimigo."
     },
-    "Cura Divina": {
-        "custo_mana": 15, "tipo": "Efeito", "potencia": 12, "efeito": "Cura",
-        "descricao": "Evoca luz sagrada para restaurar os pontos de vida."
-    },
-    "Passo Sombrio": {
-        "custo_mana": 8, "tipo": "Passiva", "potencia": 5, "efeito": "Esquiva",
-        "descricao": "Move-se pelas sombras, aumentando a agilidade temporariamente."
-    },
-    "Fúria do Deserto": {
-        "custo_mana": 20, "tipo": "Ataque", "potencia": 22, "efeito": "Nenhum",
-        "descricao": "Invoca uma tempestade de areia cortante."
-    },
-    
     "Ondas Ultrassônicas": {
         "custo_mana": 10, "tipo": "Ataque", "potencia": 10, "efeito": "Atordoamento",
+        "raridade": "Comum", "duracao_base": 1,
         "descricao": "Emite ondas sonoras de alta frequência que perturbam o inimigo."
-    },
-    "Voar/Planar": {
-        "custo_mana": 5, "tipo": "Passiva", "potencia": 8, "efeito": "Esquiva",
-        "descricao": "Permite pairar no ar, tornando os ataques inimigos difíceis de acertar."
-    },
-    "Fios Resistentes": {
-        "custo_mana": 12, "tipo": "Efeito", "potencia": 6, "efeito": "Prender",
-        "descricao": "Cria linhas de aço quase invisíveis para restringir o alvo."
     },
     "Teias Pegajosas": {
         "custo_mana": 10, "tipo": "Efeito", "potencia": 0, "efeito": "Lentidão",
+        "raridade": "Comum", "duracao_base": 3,
         "descricao": "Dispara teias viscosas que reduzem a velocidade de ação inimiga."
-    },
-    "Sopro de Paralisia": {
-        "custo_mana": 15, "tipo": "Efeito", "potencia": 5, "efeito": "Paralisia",
-        "descricao": "Expele uma névoa roxa com alta chance de paralisar o oponente."
-    },
-    "Sopro Venenoso": {
-        "custo_mana": 18, "tipo": "Ataque", "potencia": 14, "efeito": "Veneno",
-        "descricao": "Dispara um jato corrosivo que drena a vida a cada turno."
     },
     "Percepção de Calor": {
         "custo_mana": 0, "tipo": "Passiva", "potencia": 0, "efeito": "Rastrear",
+        "raridade": "Comum", "duracao_base": 99,
         "descricao": "Permite enxergar assinaturas térmicas, anulando camuflagens."
+    },
+
+    # --- INCOMUNS (Intermediárias) ---
+    "Cura Divina": {
+        "custo_mana": 15, "tipo": "Efeito", "potencia": 12, "efeito": "Cura",
+        "raridade": "Incomum", "duracao_base": 1,
+        "descricao": "Evoca luz sagrada para restaurar os pontos de vida."
+    },
+    "Voar/Planar": {
+        "custo_mana": 5, "tipo": "Passiva", "potencia": 8, "efeito": "Esquiva",
+        "raridade": "Incomum", "duracao_base": 3,
+        "descricao": "Permite pairar no ar, tornando os ataques inimigos difíceis de acertar."
+    },
+
+    # --- RARAS (Difíceis) ---
+    "Passo Sombrio": {
+        "custo_mana": 8, "tipo": "Passiva", "potencia": 5, "efeito": "Esquiva",
+        "raridade": "Raro", "duracao_base": 3,
+        "descricao": "Move-se pelas sombras, aumentando a agilidade temporariamente."
+    },
+    "Fios Resistentes": {
+        "custo_mana": 12, "tipo": "Efeito", "potencia": 6, "efeito": "Prender",
+        "raridade": "Raro", "duracao_base": 2,
+        "descricao": "Cria linhas de aço quase invisíveis para restringir o alvo."
+    },
+    "Sopro Venenoso": {
+        "custo_mana": 18, "tipo": "Ataque", "potencia": 14, "efeito": "Veneno",
+        "raridade": "Raro", "duracao_base": 3,
+        "descricao": "Dispara um jato corrosivo que drena a vida a cada turno."
+    },
+
+    # --- ÉPICAS (Muito Difíceis) ---
+    "Fúria do Deserto": {
+        "custo_mana": 20, "tipo": "Ataque", "potencia": 22, "efeito": "Nenhum",
+        "raridade": "Épico", "duracao_base": 3,
+        "descricao": "Invoca uma tempestade de areia cortante."
     },
     "Armadura Corporal": {
         "custo_mana": 0, "tipo": "Passiva", "potencia": 10, "efeito": "Defesa",
+        "raridade": "Épico", "duracao_base": 99,
         "descricao": "Endurece a pele como escamas de dragão, aumentando a resistência física."
+    },
+
+    # --- LENDÁRIAS (Extremamente Raras) ---
+    "Sopro de Paralisia": {
+        "custo_mana": 15, "tipo": "Efeito", "potencia": 5, "efeito": "Paralisia",
+        "raridade": "Lendário", "duracao_base": 2,
+        "descricao": "Expele uma névoa roxa com alta chance de paralisar o oponente."
     }
 }
+
