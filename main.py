@@ -210,3 +210,5 @@ while contexto_jogo["jogo_rodando"] and jogador.vida_atual > 0:
     elif escolha == "5":
         contexto_jogo["jogo_rodando"] = False
         print("\n👋 Obrigado por jogar! Até a próxima aventura.")
+
+# Fim até agora 
